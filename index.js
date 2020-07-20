@@ -93,7 +93,7 @@ bot.hears(/^elimina @?(\w+)$/i, ctx => {
 
 bot.hears(_cmd.cancello, ctx => {
   if (!is_allowed(ctx)) {
-    return ctx.reply('Non sei autorizzato bastardo, scrivici: '+_adm.map(x => '@'+x).join(' '))
+    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x).join(' '))
   }
   RELAY_CANCELLO.writeSync(0)
   setTimeout(() => {
