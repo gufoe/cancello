@@ -100,12 +100,12 @@ bot.hears(_cmd.cancello, ctx => {
   setTimeout(() => {
     RELAY_CANCELLO.writeSync(1)
     ctx.reply(_pick(_fattissimi))
-    bot.telegram.sendMessage('@gufoe', '@' + ctx.from.username + ' ha attivato il cancello')
+    bot.telegram.sendMessage(25913658, '@' + ctx.from.username + ' ha attivato il cancello')
   }, 300)
 })
 
 bot.hears(_cmd.version, ctx => {
-  ctx.reply('Versione 1.0.5')
+  ctx.reply('Versione 1.0.6')
 })
 
 
