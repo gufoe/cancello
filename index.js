@@ -31,7 +31,7 @@ const _fattissimi = [
 let _adm = storage_get('__admins', ['gufoe'])
 const _cmd = {
   cancello: 'Cancello',
-  version: 'Versione',
+  version: /versione/i,
 }
 const is_allowed = name => {
   if (typeof name == 'object') name = name.from.username
@@ -105,7 +105,7 @@ bot.hears(_cmd.cancello, ctx => {
 })
 
 bot.hears(_cmd.version, ctx => {
-  ctx.reply('Versione 1.0.2')
+  ctx.reply('Versione 1.0.3')
 })
 
 
