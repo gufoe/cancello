@@ -20,7 +20,7 @@ const _pick = arr => {
 }
 
 const _fattissimi = [
-  'Ho fatto, campione',
+  'Ho fatto campione!',
   'Il pulsante è stato premuto',
   'Ok, vai piano',
   'Guida responsabilmente',
@@ -105,7 +105,7 @@ bot.hears(_cmd.cancello, ctx => {
 })
 
 bot.hears(_cmd.version, ctx => {
-  ctx.reply('Versione 1.0.1')
+  ctx.reply('Versione 1.0.2')
 })
 
 
