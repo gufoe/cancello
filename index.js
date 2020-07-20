@@ -105,7 +105,7 @@ bot.hears(_cmd.cancello, ctx => {
 })
 
 bot.hears(_cmd.version, ctx => {
-  ctx.reply('Versione 1.0.3')
+  ctx.reply('Versione 1.0.4')
 })
 
 
