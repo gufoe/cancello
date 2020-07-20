@@ -15,6 +15,19 @@ const storage_get = function(k, def) {
   else return def
 }
 
+const _pick = arr => {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+const _fattissimi = [
+  'Ho fatto, campione',
+  'Il pulsante è stato premuto',
+  'Ok, vai piano',
+  'Guida responsabilmente',
+  'Rispetta le distanze',
+  'Metti la mascherina mi raccomando',
+]
+
 let _adm = storage_get('__admins', ['gufoe'])
 const _cmd = {
   cancello: 'Cancello',
@@ -80,13 +93,13 @@ bot.hears(/^elimina @?(\w+)$/i, ctx => {
 
 bot.hears(_cmd.cancello, ctx => {
   if (!is_allowed(ctx)) {
-    return ctx.reply('Non sei autorizzato, scrivici: '+_adm.map(x => '@'+x).join(' '))
+    return ctx.reply('Non sei autorizzato bastardo, scrivici: '+_adm.map(x => '@'+x).join(' '))
   }
   RELAY_CANCELLO.writeSync(0)
   setTimeout(() => {
     RELAY_CANCELLO.writeSync(1)
-    ctx.reply('Fatto')
-  }, 250)
+    ctx.reply(_pick(_fattissimi))
+  }, 300)
 })
 
 
