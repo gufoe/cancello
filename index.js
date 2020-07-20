@@ -31,6 +31,7 @@ const _fattissimi = [
 let _adm = storage_get('__admins', ['gufoe'])
 const _cmd = {
   cancello: 'Cancello',
+  version: 'Versione',
 }
 const is_allowed = name => {
   if (typeof name == 'object') name = name.from.username
@@ -100,6 +101,10 @@ bot.hears(_cmd.cancello, ctx => {
     RELAY_CANCELLO.writeSync(1)
     ctx.reply(_pick(_fattissimi))
   }, 300)
+})
+
+bot.hears(_cmd.version, ctx => {
+  ctx.reply('Versione 1.0.0')
 })
 
 
