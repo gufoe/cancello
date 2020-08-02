@@ -126,7 +126,7 @@ bot.hears(_cmd.non_aprire, ctx => {
   ctx.reply('😑', kb_def)
 })
 bot.hears(_cmd.versione, ctx => {
-  ctx.reply('Versione 1.0.8', kb_def)
+  ctx.reply('Versione 1.0.9', kb_def)
 })
 
 process.on('SIGINT', () => {
