@@ -4,7 +4,7 @@ const Extra = require('telegraf/extra')
 const Markup = require('telegraf/markup')
 const storage = new require('node-localstorage').LocalStorage('./data');
 const Gpio = require('onoff').Gpio;
-const RELAY_CANCELLO = new Gpio(26, 'high');
+let RELAY_CANCELLO
 
 const storage_set = function(k, v) {
   storage.setItem(k, JSON.stringify(v))
@@ -37,6 +37,10 @@ const time_now = () => (new Date).getTime()
 const is_enabled = (ctx) => {
 
 }
+const init_gpio = () => {
+  if (RELAY_CANCELLO) return null
+  RELAY_CANCELLO = new Gpio(26, 'high')
+}
 const _fattissimi = [
   'Ho fatto campione!',
   'Il pulsante è stato premuto',
@@ -49,12 +53,12 @@ const _fattissimi = [
 let _adm = storage_get('__admins', ['gufoe'])
 const _cmd = {
   ciao: 'Ciao ☺️',
-  cancello: 'Cancello ⚙️',
-  apri: 'Sì',
-  non_aprire: 'No',
-  version: /versione/i,
   aggiungi: /^aggiungi @?(\w+)\s?(\d+)?$/i,
   elimina: /^elimina @?(\w+)$/i,
+  cancello: 'Cancello ⚙️',
+  apri: 'Apri / chiudi',
+  non_aprire: 'Annulla',
+  versione: 'Versione',
 }
 {
   let all_cmds = Object.values(_cmd)
@@ -67,8 +71,7 @@ const _cmd = {
 
 const kb_def = Markup.keyboard([
   [_cmd.cancello],
-  [_cmd.version],
-  [_cmd.ciao],
+  [_cmd.versione, _cmd.ciao],
 ]).resize().extra()
 
 const kb_yesno = Markup.keyboard([
@@ -77,9 +80,12 @@ const kb_yesno = Markup.keyboard([
 
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-// bot.use(Telegraf.log())
+bot.use(Telegraf.log())
 bot.start(ctx => {
-  return ctx.reply('Benvenuto', kb_def)
+  return ctx.reply('Benvenuto', Markup.keyboard([
+    [_cmd.cancello],
+    [_cmd.versione, _cmd.ciao],
+  ]).resize().extra())
 })
 bot.hears(_cmd.ciao, ctx => {
   ctx.reply('Ciao io sono il cancello 🤖', kb_def)
@@ -107,10 +113,8 @@ bot.hears(_cmd.cancello, ctx => {
   }
   ctx.reply('Sei davvero davvero sicuro?', kb_yesno)
 })
-bot.hears(_cmd.version, ctx => {
-  ctx.reply('Versione 1.0.7', kb_def)
-})
 bot.hears(_cmd.apri, ctx => {
+  init_gpio()
   RELAY_CANCELLO.writeSync(0)
   setTimeout(() => {
     RELAY_CANCELLO.writeSync(1)
@@ -120,6 +124,9 @@ bot.hears(_cmd.apri, ctx => {
 })
 bot.hears(_cmd.non_aprire, ctx => {
   ctx.reply('😑', kb_def)
+})
+bot.hears(_cmd.versione, ctx => {
+  ctx.reply('Versione 1.0.8', kb_def)
 })
 
 process.on('SIGINT', () => {
