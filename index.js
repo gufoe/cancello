@@ -114,6 +114,9 @@ bot.hears(_cmd.cancello, ctx => {
   ctx.reply('Sei davvero davvero sicuro?', kb_yesno)
 })
 bot.hears(_cmd.apri, ctx => {
+  if (!is_allowed(ctx)) {
+    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x).join(' '))
+  }
   init_gpio()
   RELAY_CANCELLO.writeSync(0)
   setTimeout(() => {
@@ -126,7 +129,7 @@ bot.hears(_cmd.non_aprire, ctx => {
   ctx.reply('😑', kb_def)
 })
 bot.hears(_cmd.versione, ctx => {
-  ctx.reply('Versione 1.0.9', kb_def)
+  ctx.reply('Versione 1.0.10', kb_def)
 })
 
 process.on('SIGINT', () => {
