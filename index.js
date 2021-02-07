@@ -5,6 +5,7 @@ const Markup = require('telegraf/markup')
 const storage = new require('node-localstorage').LocalStorage('./data');
 const Gpio = require('onoff').Gpio;
 let RELAY_CANCELLO
+let RELAY_PORTONE
 
 const storage_set = function(k, v) {
   storage.setItem(k, JSON.stringify(v))
@@ -40,6 +41,7 @@ const is_enabled = (ctx) => {
 const init_gpio = () => {
   if (RELAY_CANCELLO) return null
   RELAY_CANCELLO = new Gpio(26, 'high')
+  RELAY_PORTONE = new Gpio(27, 'high')
 }
 const _fattissimi = [
   'Ho fatto campione!',
@@ -56,7 +58,9 @@ const _cmd = {
   aggiungi: /^aggiungi @?(\w+)\s?(\d+)?$/i,
   elimina: /^elimina @?(\w+)$/i,
   cancello: 'Cancello ⚙️',
+  portone: 'Portone ⚙️',
   apri: 'Apri / chiudi',
+  apri_portone: 'Apri / chiudi :)',
   non_aprire: 'Annulla',
   versione: 'Versione',
 }
@@ -71,21 +75,22 @@ const _cmd = {
 
 const kb_def = Markup.keyboard([
   [_cmd.cancello],
+  [_cmd.portone],
   [_cmd.versione, _cmd.ciao],
 ]).resize().extra()
 
 const kb_yesno = Markup.keyboard([
   [_cmd.apri, _cmd.non_aprire],
 ]).resize().extra()
+const kb_yesno2 = Markup.keyboard([
+  [_cmd.apri_portone, _cmd.non_aprire],
+]).resize().extra()
 
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(Telegraf.log())
 bot.start(ctx => {
-  return ctx.reply('Benvenuto', Markup.keyboard([
-    [_cmd.cancello],
-    [_cmd.versione, _cmd.ciao],
-  ]).resize().extra())
+  return ctx.reply('Benvenuto', kb_def)
 })
 bot.hears(_cmd.ciao, ctx => {
   ctx.reply('Ciao io sono il cancello 🤖', kb_def)
@@ -113,6 +118,12 @@ bot.hears(_cmd.cancello, ctx => {
   }
   ctx.reply('Sei davvero davvero sicuro?', kb_yesno)
 })
+bot.hears(_cmd.portone, ctx => {
+  if (!is_allowed(ctx)) {
+    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x).join(' '))
+  }
+  ctx.reply('Sei davvero davvero sicuro?', kb_yesno2)
+})
 bot.hears(_cmd.apri, ctx => {
   if (!is_allowed(ctx)) {
     return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x).join(' '))
@@ -125,11 +136,23 @@ bot.hears(_cmd.apri, ctx => {
     bot.telegram.sendMessage(25913658, '@' + ctx.from.username + ' ha attivato il cancello', kb_def)
   }, 300)
 })
+bot.hears(_cmd.apri_portone, ctx => {
+  if (!is_allowed(ctx)) {
+    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x).join(' '))
+  }
+  init_gpio()
+  RELAY_PORTONE.writeSync(0)
+  setTimeout(() => {
+    RELAY_PORTONE.writeSync(1)
+    ctx.reply(_pick(_fattissimi))
+    bot.telegram.sendMessage(25913658, '@' + ctx.from.username + ' ha attivato il portone', kb_def)
+  }, 300)
+})
 bot.hears(_cmd.non_aprire, ctx => {
   ctx.reply('😑', kb_def)
 })
 bot.hears(_cmd.versione, ctx => {
-  ctx.reply('Versione 1.0.10', kb_def)
+  ctx.reply('Versione 1.0.11', kb_def)
 })
 
 process.on('SIGINT', () => {
