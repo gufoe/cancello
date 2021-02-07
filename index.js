@@ -41,7 +41,7 @@ const is_enabled = (ctx) => {
 const init_gpio = () => {
   if (RELAY_CANCELLO) return null
   RELAY_CANCELLO = new Gpio(26, 'high')
-  RELAY_PORTONE = new Gpio(27, 'high')
+  RELAY_PORTONE = new Gpio(19, 'high')
 }
 const _fattissimi = [
   'Ho fatto campione!',
