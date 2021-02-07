@@ -21,7 +21,7 @@ const _pick = arr => {
 const is_allowed = name => {
   if (typeof name == 'object') name = name.from.username
   if (!name) return null
-  if (_adm.includes(name)) return true
+  if (_adm.find(a => a.name == name)) return true
   let user = storage_get(name)
   if (!user) return null
   if (user.expires_at && time_now() > user.expires_at) return null
@@ -50,18 +50,28 @@ const _fattissimi = [
   'Guida responsabilmente',
   'Rispetta le distanze',
   'Metti la mascherina mi raccomando',
+  'Fatto, colonnello!',
+  'Sissignore!',
+  'Ordine ricevuto',
+  'Comandi, signorsì',
+  'Vedi tu',
 ]
 
-let _adm = storage_get('__admins', ['gufoe'])
+let _adm = storage_get('__admins', [
+  {
+    id: 25913658,
+    name: 'gufoe',
+  }
+])
 const _cmd = {
   ciao: 'Ciao ☺️',
   aggiungi: /^aggiungi @?(\w+)\s?(\d+)?$/i,
   elimina: /^elimina @?(\w+)$/i,
   cancello: 'Cancello ⚙️',
   portone: 'Portone ⚙️',
-  apri: 'Apri / chiudi',
-  apri_portone: 'Apri / chiudi :)',
-  non_aprire: 'Annulla',
+  apri: 'Attiva cancello!',
+  apri_portone: 'Attiva portone!',
+  non_aprire: 'Torna indietro',
   versione: 'Versione',
 }
 {
@@ -96,8 +106,8 @@ bot.hears(_cmd.ciao, ctx => {
   ctx.reply('Ciao io sono il cancello 🤖', kb_def)
 })
 bot.hears(_cmd.aggiungi, ctx => {
-  if (!_adm.includes(ctx.from.username)) {
-    return ctx.reply('Non sei autorizzato, scrivici: '+_adm.map(x => '@'+x).join(' '))
+  if (!_adm.find(a => a.name == ctx.from.username)) {
+    return ctx.reply('Chi pensi di essere? Un amministratore?\nNo.')
   }
   let name = ctx.match[1]
   let hours = ctx.match[2]
@@ -105,8 +115,8 @@ bot.hears(_cmd.aggiungi, ctx => {
   ctx.reply('Utente '+name+' aggiunto per '+(hours > 1 ? hours+' ore' : (hours == 1 ? 'un\'ora' : 'sempre')))
 })
 bot.hears(_cmd.elimina, ctx => {
-  if (!_adm.includes(ctx.from.username)) {
-    return ctx.reply('Non sei autorizzato, scrivici: '+_adm.map(x => '@'+x).join(' '))
+  if (!_adm.find(a => a.name == ctx.from.username)) {
+    return ctx.reply('Chi pensi di essere? Un amministratore?\nNo.')
   }
   let name = ctx.match[1]
   storage_set(name, null)
@@ -114,45 +124,49 @@ bot.hears(_cmd.elimina, ctx => {
 })
 bot.hears(_cmd.cancello, ctx => {
   if (!is_allowed(ctx)) {
-    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x).join(' '))
+    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x.name).join(' '))
   }
   ctx.reply('Sei davvero davvero sicuro?', kb_yesno)
 })
 bot.hears(_cmd.portone, ctx => {
   if (!is_allowed(ctx)) {
-    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x).join(' '))
+    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x.name).join(' '))
   }
   ctx.reply('Sei davvero davvero sicuro?', kb_yesno2)
 })
 bot.hears(_cmd.apri, ctx => {
   if (!is_allowed(ctx)) {
-    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x).join(' '))
+    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x.name).join(' '))
   }
   init_gpio()
   RELAY_CANCELLO.writeSync(0)
   setTimeout(() => {
     RELAY_CANCELLO.writeSync(1)
-    ctx.reply(_pick(_fattissimi))
-    bot.telegram.sendMessage(25913658, '@' + ctx.from.username + ' ha attivato il cancello', kb_def)
+    ctx.reply(_pick(_fattissimi), kb_def)
+    _adm.forEach(admin => {
+      bot.telegram.sendMessage(admin.id, '@' + ctx.from.username + ' ha attivato il cancello', kb_def)
+    })
   }, 300)
 })
 bot.hears(_cmd.apri_portone, ctx => {
   if (!is_allowed(ctx)) {
-    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x).join(' '))
+    return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x.name).join(' '))
   }
   init_gpio()
   RELAY_PORTONE.writeSync(0)
   setTimeout(() => {
     RELAY_PORTONE.writeSync(1)
-    ctx.reply(_pick(_fattissimi))
-    bot.telegram.sendMessage(25913658, '@' + ctx.from.username + ' ha attivato il portone', kb_def)
+    ctx.reply(_pick(_fattissimi), kb_def)
+    _adm.forEach(admin => {
+      bot.telegram.sendMessage(admin.id, '@' + ctx.from.username + ' ha attivato il portone', kb_def)
+    })
   }, 300)
 })
 bot.hears(_cmd.non_aprire, ctx => {
   ctx.reply('😑', kb_def)
 })
 bot.hears(_cmd.versione, ctx => {
-  ctx.reply('Versione 1.0.11', kb_def)
+  ctx.reply('Versione 1.0.12', kb_def)
 })
 
 process.on('SIGINT', () => {
