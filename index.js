@@ -40,8 +40,8 @@ const is_enabled = (ctx) => {
 }
 const init_gpio = () => {
   if (RELAY_CANCELLO) return null
-  RELAY_CANCELLO = new Gpio(26, 'high')
-  RELAY_PORTONE = new Gpio(19, 'high')
+  RELAY_CANCELLO = new Gpio(26, 'low')
+  RELAY_PORTONE = new Gpio(19, 'low')
 }
 const _fattissimi = [
   'Ho fatto campione!',
@@ -139,9 +139,9 @@ bot.hears(_cmd.apri, ctx => {
     return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x.name).join(' '))
   }
   init_gpio()
-  RELAY_CANCELLO.writeSync(0)
+  RELAY_CANCELLO.writeSync(1)
   setTimeout(() => {
-    RELAY_CANCELLO.writeSync(1)
+    RELAY_CANCELLO.writeSync(0)
     ctx.reply(_pick(_fattissimi), kb_def)
     _adm.forEach(admin => {
       bot.telegram.sendMessage(admin.id, '@' + ctx.from.username + ' ha attivato il cancello', kb_def)
@@ -153,9 +153,9 @@ bot.hears(_cmd.apri_portone, ctx => {
     return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x.name).join(' '))
   }
   init_gpio()
-  RELAY_PORTONE.writeSync(0)
+  RELAY_PORTONE.writeSync(1)
   setTimeout(() => {
-    RELAY_PORTONE.writeSync(1)
+    RELAY_PORTONE.writeSync(0)
     ctx.reply(_pick(_fattissimi), kb_def)
     _adm.forEach(admin => {
       bot.telegram.sendMessage(admin.id, '@' + ctx.from.username + ' ha attivato il portone', kb_def)
