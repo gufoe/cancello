@@ -40,8 +40,12 @@ const is_enabled = (ctx) => {
 }
 const init_gpio = () => {
   if (RELAY_CANCELLO) return null
-  RELAY_CANCELLO = new Gpio(26, 'low')
-  RELAY_PORTONE = new Gpio(19, 'low')
+  try {
+    RELAY_CANCELLO = new Gpio(26, 'low')
+  } catch(e){}
+  try {
+    RELAY_PORTONE = new Gpio(19, 'low')
+  } catch(e){}
 }
 const _fattissimi = [
   'Ho fatto campione!',
@@ -68,6 +72,7 @@ const _cmd = {
   aggiungi: /^aggiungi @?(\w+)\s?(\d+)?$/i,
   elimina: /^elimina @?(\w+)$/i,
   cancello: 'Cancello ⚙️',
+  cancello_veloce: 'Cancello 🚀',
   portone: 'Portone ⚙️',
   apri: 'Attiva cancello!',
   apri_portone: 'Attiva portone!',
@@ -86,7 +91,7 @@ const _cmd = {
 const kb_def = Markup.keyboard([
   [_cmd.cancello],
   [_cmd.portone],
-  [_cmd.versione, _cmd.ciao],
+  [_cmd.versione, _cmd.ciao, _cmd.cancello_veloce],
 ]).resize().extra()
 
 const kb_yesno = Markup.keyboard([
@@ -134,14 +139,14 @@ bot.hears(_cmd.portone, ctx => {
   }
   ctx.reply('Sei davvero davvero sicuro?', kb_yesno2)
 })
-bot.hears(_cmd.apri, ctx => {
+bot.hears([_cmd.apri, _cmd.cancello_veloce], ctx => {
   if (!is_allowed(ctx)) {
     return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x.name).join(' '))
   }
   init_gpio()
-  RELAY_CANCELLO.writeSync(1)
+  RELAY_CANCELLO?.writeSync(1)
   setTimeout(() => {
-    RELAY_CANCELLO.writeSync(0)
+    RELAY_CANCELLO?.writeSync(0)
     ctx.reply(_pick(_fattissimi), kb_def)
     _adm.forEach(admin => {
       bot.telegram.sendMessage(admin.id, '@' + ctx.from.username + ' ha attivato il cancello', kb_def)
@@ -153,9 +158,9 @@ bot.hears(_cmd.apri_portone, ctx => {
     return ctx.reply('Non sei autorizzato bastardo, scrivimi: '+_adm.map(x => '@'+x.name).join(' '))
   }
   init_gpio()
-  RELAY_PORTONE.writeSync(1)
+  RELAY_PORTONE?.writeSync(1)
   setTimeout(() => {
-    RELAY_PORTONE.writeSync(0)
+    RELAY_PORTONE?.writeSync(0)
     ctx.reply(_pick(_fattissimi), kb_def)
     _adm.forEach(admin => {
       bot.telegram.sendMessage(admin.id, '@' + ctx.from.username + ' ha attivato il portone', kb_def)
