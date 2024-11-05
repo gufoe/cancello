@@ -1,8 +1,8 @@
 require('dotenv').config()
-const Telegraf = require('telegraf')
-const Extra = require('telegraf/extra')
+const {Telegraf} = require('telegraf')
 const Markup = require('telegraf/markup')
-const storage = new require('node-localstorage').LocalStorage('./data');
+const LocalStorage = require('node-localstorage').LocalStorage
+const storage = new LocalStorage('./data');
 const Gpio = require('onoff').Gpio;
 let RELAY_CANCELLO
 let RELAY_PORTONE
@@ -35,9 +35,6 @@ const grant_user = (name, hours) => {
   storage_set(name, perm)
 }
 const time_now = () => (new Date).getTime()
-const is_enabled = (ctx) => {
-
-}
 const init_gpio = () => {
   if (RELAY_CANCELLO) return null
   try {
@@ -92,14 +89,14 @@ const kb_def = Markup.keyboard([
   [_cmd.cancello],
   [_cmd.portone],
   [_cmd.versione, _cmd.ciao, _cmd.cancello_veloce],
-]).resize().extra()
+]).resize()
 
 const kb_yesno = Markup.keyboard([
   [_cmd.apri, _cmd.non_aprire],
-]).resize().extra()
+]).resize()
 const kb_yesno2 = Markup.keyboard([
   [_cmd.apri_portone, _cmd.non_aprire],
-]).resize().extra()
+]).resize()
 
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
